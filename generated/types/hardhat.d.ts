@@ -106,10 +106,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Strings__factory>;
     getContractFactory(
-      name: "EnterTheChainlinkMultiverse",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.EnterTheChainlinkMultiverse__factory>;
-    getContractFactory(
       name: "EnterTheChainlinkNFTMultiverse",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EnterTheChainlinkNFTMultiverse__factory>;
@@ -230,11 +226,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Strings>;
     getContractAt(
-      name: "EnterTheChainlinkMultiverse",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.EnterTheChainlinkMultiverse>;
-    getContractAt(
       name: "EnterTheChainlinkNFTMultiverse",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -332,10 +323,6 @@ declare module "hardhat/types/runtime" {
       name: "Strings",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
-    deployContract(
-      name: "EnterTheChainlinkMultiverse",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.EnterTheChainlinkMultiverse>;
     deployContract(
       name: "EnterTheChainlinkNFTMultiverse",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -456,11 +443,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
-    deployContract(
-      name: "EnterTheChainlinkMultiverse",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.EnterTheChainlinkMultiverse>;
     deployContract(
       name: "EnterTheChainlinkNFTMultiverse",
       args: any[],

@@ -54,7 +54,5 @@ export type { Math } from "./@openzeppelin/contracts/utils/math/Math";
 export { Math__factory } from "./factories/@openzeppelin/contracts/utils/math/Math__factory";
 export type { Strings } from "./@openzeppelin/contracts/utils/Strings";
 export { Strings__factory } from "./factories/@openzeppelin/contracts/utils/Strings__factory";
-export type { EnterTheChainlinkMultiverse } from "./contracts/ChainlinkMultiverse.sol/EnterTheChainlinkMultiverse";
-export { EnterTheChainlinkMultiverse__factory } from "./factories/contracts/ChainlinkMultiverse.sol/EnterTheChainlinkMultiverse__factory";
 export type { EnterTheChainlinkNFTMultiverse } from "./contracts/EnterTheChainlinkNFTMultiverse";
 export { EnterTheChainlinkNFTMultiverse__factory } from "./factories/contracts/EnterTheChainlinkNFTMultiverse__factory";
