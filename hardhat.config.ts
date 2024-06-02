@@ -6,6 +6,8 @@ import "@nomicfoundation/hardhat-ethers";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-deploy";
 
+import "./src/deploy/deploy-multiverse";
+
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
