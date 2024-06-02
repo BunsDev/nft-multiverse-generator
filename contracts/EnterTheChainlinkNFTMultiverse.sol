@@ -30,7 +30,14 @@ contract EnterTheChainlinkNFTMultiverse is
     struct FunctionsRequestInfo {
         uint256 tokenId;
         address userWallet;
-        bool isPending;
+    }
+
+    struct TokenInfo {
+        string nftData;
+        string randomApiSource;
+        address originalMinter;
+        bool isMinted;
+        bool hasExplored;
     }
 
     /** NFT VARIABLES */
@@ -41,11 +48,12 @@ contract EnterTheChainlinkNFTMultiverse is
 
     string[] public multiverseApiSources;
 
-    string public lastFunctionCallbackStringResult;
-
-    mapping(uint256 => string) public tokenIdToNFTData;
+    mapping(uint256 => TokenInfo) public tokenIdToTokenInfo;
 
     /** CHAINLINK FUNCTIONS VARIABLES */
+
+    // Last response from the Chainlink Functions node
+    string public lastFunctionCallbackStringResult;
 
     // Chainlink Functions subscription id, needed for the FunctionsClient
     uint64 functionsSubscriptionId = 67;
@@ -63,8 +71,6 @@ contract EnterTheChainlinkNFTMultiverse is
 
     // Function config, needed for the FunctionsClient
     bytes32 public functionCallbackLastRequestId;
-    bytes public functionCallbackLastResponse;
-    bytes public functionCallbackLastError;
     uint32 public functionGasLimit = 300000;
 
     /** CHAINLINK VRF VARIABLES */
@@ -78,14 +84,13 @@ contract EnterTheChainlinkNFTMultiverse is
 
     // Arbitrum Sepolia key hash, needed for the VRFConsumerBaseV2Plus
     bytes32 public arbitrumSepoliaKeyHash =
-        0x027f94ff1465b3525f9fc03e9ff7d6d2c0953482246dd6ae07570c45d6631414;
+        0x1770bdc7eec7771f7ba4ffd640f34260d7f095b79c92d34a5b2551d6f6cfd2be;
 
     // VRF config, needed for the VRFConsumerBaseV2Plus
-    uint16 public vrfRequestConfirmations = 1;
     uint32 public vrfNumWords = 1;
     uint256[] public vrfRequestIds;
     uint256 public vrfLastRequestId;
-    uint32 public vrfCallbackGasLimit = 100000;
+    uint32 public vrfCallbackGasLimit = 600000;
 
     // The VRF Coordinator address for the Arbitrum Sepolia network, needed for the VRFConsumerBaseV2Plus
     address public vrfCoordinator = 0x5CE8D5A2BC84beb22a398CCA51996F7930313D61;
@@ -141,7 +146,7 @@ contract EnterTheChainlinkNFTMultiverse is
             VRFV2PlusClient.RandomWordsRequest({
                 keyHash: arbitrumSepoliaKeyHash,
                 subId: vrfSubscriptionId,
-                requestConfirmations: vrfRequestConfirmations,
+                requestConfirmations: 1,
                 callbackGasLimit: vrfCallbackGasLimit,
                 numWords: vrfNumWords,
                 extraArgs: VRFV2PlusClient._argsToBytes(
@@ -162,6 +167,61 @@ contract EnterTheChainlinkNFTMultiverse is
         emit RequestSent(requestId, vrfNumWords);
     }
 
+    /**
+     * @notice Entry point for the user to enter their NFT into the multiverse by way of Chainlink Functions
+     * @dev The caller must be the original minter of the NFT
+     * @dev The NFT has not been minted yet, the callback will retrieve and set the metadata for the NFT
+     */
+    function exploreNFTMultiverse(uint256 tokenId) external {
+        require(!isPaused, "Contract is paused");
+        TokenInfo storage tokenInfo = tokenIdToTokenInfo[tokenId];
+        require(!tokenInfo.isMinted, "NFT already minted");
+        require(
+            msg.sender == tokenInfo.originalMinter,
+            "Only the original minter can explore the multiverse"
+        );
+        require(
+            tokenInfo.hasExplored == false,
+            "NFT already explored the multiverse, soon it will be ready"
+        );
+        tokenInfo.hasExplored = true;
+        // Use the random api source to make a request to the Chainlink node
+        // Build and initialize the request
+        FunctionsRequest.Request memory req;
+        req.initializeRequestForInlineJavaScript(tokenInfo.randomApiSource);
+        // Send request to the Chainlink node
+        functionCallbackLastRequestId = _sendRequest(
+            req.encodeCBOR(),
+            functionsSubscriptionId,
+            functionGasLimit,
+            donId
+        );
+        // Track the request id for the Chainlink Function request
+        chainlinkFunctionsRequestIdTracker[
+            functionCallbackLastRequestId
+        ] = FunctionsRequestInfo({tokenId: tokenId, userWallet: msg.sender});
+    }
+
+    /**
+     * @notice Last step for the user to mint their NFT
+     */
+    function enterTheMultiverse(uint256 tokenId) external {
+        require(!isPaused, "Contract is paused");
+        TokenInfo storage tokenInfo = tokenIdToTokenInfo[tokenId];
+        require(!tokenInfo.isMinted, "NFT already minted");
+        require(
+            msg.sender == tokenInfo.originalMinter,
+            "Only the original minter can enter the NFT into the multiverse"
+        );
+        require(
+            tokenInfo.hasExplored == true,
+            "NFT has not explored the multiverse yet"
+        );
+        tokenInfo.isMinted = true;
+        // Mint the NFT
+        _safeMint(msg.sender, tokenId);
+    }
+
     /** CHAINLINK SERVICES CALLBACK FUNCS */
 
     /**
@@ -176,31 +236,18 @@ contract EnterTheChainlinkNFTMultiverse is
         VRFRequestStatus storage request = chainlinkVRFRequestIdTracker[
             requestId
         ];
+        require(request.exists, "Invalid request id");
         request.randomWords = randomWords;
         request.fulfilled = true;
+        request.exists = false;
         // Pull the VRF random number from the response array
         uint256 randomNumber = randomWords[0] % multiverseApiSources.length;
         // Use the random number to select a random api source
         string memory randomApiSource = multiverseApiSources[randomNumber];
-        // Use the random api source to make a request to the Chainlink node
-        // Build and initialize the request
-        FunctionsRequest.Request memory req;
-        req.initializeRequestForInlineJavaScript(randomApiSource);
-        // Send request to the Chainlink node
-        functionCallbackLastRequestId = _sendRequest(
-            req.encodeCBOR(),
-            functionsSubscriptionId,
-            functionGasLimit,
-            donId
-        );
-        // Track the request id for the Chainlink Function request
-        chainlinkFunctionsRequestIdTracker[
-            functionCallbackLastRequestId
-        ] = FunctionsRequestInfo({
-            tokenId: request.tokenId,
-            userWallet: request.userWallet,
-            isPending: true
-        });
+        // Assign the random api source to the tokenId
+        TokenInfo storage tokenInfo = tokenIdToTokenInfo[request.tokenId];
+        tokenInfo.randomApiSource = randomApiSource;
+        tokenInfo.originalMinter = request.userWallet;
         // Emit the RequestFulfilled event
         emit RequestFulfilled(requestId, randomWords);
     }
@@ -214,26 +261,13 @@ contract EnterTheChainlinkNFTMultiverse is
         bytes memory response,
         bytes memory err
     ) internal override {
-        require(
-            chainlinkFunctionsRequestIdTracker[requestId].isPending == true,
-            "Invalid request id"
-        );
-        // Store the callback response and error
-        functionCallbackLastError = err;
-        functionCallbackLastResponse = response;
         // Store the last response as a string
         lastFunctionCallbackStringResult = string(response);
-        // Set the request as not pending anymore
-        chainlinkFunctionsRequestIdTracker[requestId].isPending = false;
         // Set the metadata string for the NFT
-        tokenIdToNFTData[
+        TokenInfo storage tokenInfo = tokenIdToTokenInfo[
             chainlinkFunctionsRequestIdTracker[requestId].tokenId
-        ] = lastFunctionCallbackStringResult;
-        // Mint the NFT
-        _safeMint(
-            chainlinkFunctionsRequestIdTracker[requestId].userWallet,
-            chainlinkFunctionsRequestIdTracker[requestId].tokenId
-        );
+        ];
+        tokenInfo.nftData = lastFunctionCallbackStringResult;
     }
 
     /** HELPERS */
@@ -279,5 +313,21 @@ contract EnterTheChainlinkNFTMultiverse is
     ) external onlyOwner {
         require(index < multiverseApiSources.length, "Index out of bounds");
         multiverseApiSources[index] = apiSource;
+    }
+
+    /**
+     * @notice Update the VRF Callback Gas Limit
+     */
+    function setVrfCallbackGasLimit(
+        uint32 _vrfCallbackGasLimit
+    ) external onlyOwner {
+        vrfCallbackGasLimit = _vrfCallbackGasLimit;
+    }
+
+    /**
+     * @notice Update the Function Gas Limit
+     */
+    function setFunctionGasLimit(uint32 _functionGasLimit) external onlyOwner {
+        functionGasLimit = _functionGasLimit;
     }
 }
