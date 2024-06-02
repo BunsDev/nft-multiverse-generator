@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as chainlinkMultiverseSol from "./ChainlinkMultiverse.sol";
+export { EnterTheChainlinkNFTMultiverse__factory } from "./EnterTheChainlinkNFTMultiverse__factory";

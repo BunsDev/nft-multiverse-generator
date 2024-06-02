@@ -3,3 +3,4 @@
 /* eslint-disable */
 import type * as chainlinkMultiverseSol from "./ChainlinkMultiverse.sol";
 export type { chainlinkMultiverseSol };
+export type { EnterTheChainlinkNFTMultiverse } from "./EnterTheChainlinkNFTMultiverse";
