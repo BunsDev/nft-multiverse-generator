@@ -73,7 +73,6 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
       | "vrfCoordinator"
       | "vrfLastRequestId"
       | "vrfNumWords"
-      | "vrfRequestConfirmations"
       | "vrfRequestIds"
       | "vrfSubscriptionId"
   ): FunctionFragment;
@@ -257,10 +256,6 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "vrfRequestConfirmations",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "vrfRequestIds",
     values: [BigNumberish]
   ): string;
@@ -416,10 +411,6 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "vrfNumWords",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "vrfRequestConfirmations",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -808,8 +799,6 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
 
   vrfNumWords: TypedContractMethod<[], [bigint], "view">;
 
-  vrfRequestConfirmations: TypedContractMethod<[], [bigint], "view">;
-
   vrfRequestIds: TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
 
   vrfSubscriptionId: TypedContractMethod<[], [bigint], "view">;
@@ -1020,9 +1009,6 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "vrfNumWords"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "vrfRequestConfirmations"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "vrfRequestIds"
