@@ -34,9 +34,9 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
       | "chainlinkFunctionsRequestIdTracker"
       | "chainlinkVRFRequestIdTracker"
       | "disneySource"
-      | "functionCallbackLastError"
+      | "enterTheMultiverse"
+      | "exploreNFTMultiverse"
       | "functionCallbackLastRequestId"
-      | "functionCallbackLastResponse"
       | "functionGasLimit"
       | "gameOfThronesSource"
       | "getApproved"
@@ -60,10 +60,12 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
       | "safeTransferFrom(address,address,uint256,bytes)"
       | "setApprovalForAll"
       | "setCoordinator"
+      | "setFunctionGasLimit"
+      | "setVrfCallbackGasLimit"
       | "supportsInterface"
       | "symbol"
       | "tokenIdCounter"
-      | "tokenIdToNFTData"
+      | "tokenIdToTokenInfo"
       | "tokenURI"
       | "transferFrom"
       | "transferOwnership"
@@ -124,15 +126,15 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "functionCallbackLastError",
-    values?: undefined
+    functionFragment: "enterTheMultiverse",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "exploreNFTMultiverse",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "functionCallbackLastRequestId",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "functionCallbackLastResponse",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -210,6 +212,14 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "setFunctionGasLimit",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setVrfCallbackGasLimit",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
@@ -219,7 +229,7 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenIdToNFTData",
+    functionFragment: "tokenIdToTokenInfo",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -291,15 +301,15 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "functionCallbackLastError",
+    functionFragment: "enterTheMultiverse",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "exploreNFTMultiverse",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "functionCallbackLastRequestId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "functionCallbackLastResponse",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -371,6 +381,14 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setFunctionGasLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVrfCallbackGasLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
@@ -380,7 +398,7 @@ export interface EnterTheChainlinkNFTMultiverseInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenIdToNFTData",
+    functionFragment: "tokenIdToTokenInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
@@ -635,13 +653,7 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
 
   chainlinkFunctionsRequestIdTracker: TypedContractMethod<
     [arg0: BytesLike],
-    [
-      [bigint, string, boolean] & {
-        tokenId: bigint;
-        userWallet: string;
-        isPending: boolean;
-      }
-    ],
+    [[bigint, string] & { tokenId: bigint; userWallet: string }],
     "view"
   >;
 
@@ -660,11 +672,19 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
 
   disneySource: TypedContractMethod<[], [string], "view">;
 
-  functionCallbackLastError: TypedContractMethod<[], [string], "view">;
+  enterTheMultiverse: TypedContractMethod<
+    [tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  exploreNFTMultiverse: TypedContractMethod<
+    [tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   functionCallbackLastRequestId: TypedContractMethod<[], [string], "view">;
-
-  functionCallbackLastResponse: TypedContractMethod<[], [string], "view">;
 
   functionGasLimit: TypedContractMethod<[], [bigint], "view">;
 
@@ -757,6 +777,18 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
     "nonpayable"
   >;
 
+  setFunctionGasLimit: TypedContractMethod<
+    [_functionGasLimit: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setVrfCallbackGasLimit: TypedContractMethod<
+    [_vrfCallbackGasLimit: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
     [boolean],
@@ -767,7 +799,19 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
 
   tokenIdCounter: TypedContractMethod<[], [bigint], "view">;
 
-  tokenIdToNFTData: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  tokenIdToTokenInfo: TypedContractMethod<
+    [arg0: BigNumberish],
+    [
+      [string, string, string, boolean, boolean] & {
+        nftData: string;
+        randomApiSource: string;
+        originalMinter: string;
+        isMinted: boolean;
+        hasExplored: boolean;
+      }
+    ],
+    "view"
+  >;
 
   tokenURI: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
@@ -830,13 +874,7 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
     nameOrSignature: "chainlinkFunctionsRequestIdTracker"
   ): TypedContractMethod<
     [arg0: BytesLike],
-    [
-      [bigint, string, boolean] & {
-        tokenId: bigint;
-        userWallet: string;
-        isPending: boolean;
-      }
-    ],
+    [[bigint, string] & { tokenId: bigint; userWallet: string }],
     "view"
   >;
   getFunction(
@@ -857,13 +895,13 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
     nameOrSignature: "disneySource"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "functionCallbackLastError"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "enterTheMultiverse"
+  ): TypedContractMethod<[tokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "exploreNFTMultiverse"
+  ): TypedContractMethod<[tokenId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "functionCallbackLastRequestId"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "functionCallbackLastResponse"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "functionGasLimit"
@@ -964,6 +1002,20 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
     nameOrSignature: "setCoordinator"
   ): TypedContractMethod<[_vrfCoordinator: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "setFunctionGasLimit"
+  ): TypedContractMethod<
+    [_functionGasLimit: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setVrfCallbackGasLimit"
+  ): TypedContractMethod<
+    [_vrfCallbackGasLimit: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
   getFunction(
@@ -973,8 +1025,20 @@ export interface EnterTheChainlinkNFTMultiverse extends BaseContract {
     nameOrSignature: "tokenIdCounter"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "tokenIdToNFTData"
-  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+    nameOrSignature: "tokenIdToTokenInfo"
+  ): TypedContractMethod<
+    [arg0: BigNumberish],
+    [
+      [string, string, string, boolean, boolean] & {
+        nftData: string;
+        randomApiSource: string;
+        originalMinter: string;
+        isMinted: boolean;
+        hasExplored: boolean;
+      }
+    ],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "tokenURI"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
