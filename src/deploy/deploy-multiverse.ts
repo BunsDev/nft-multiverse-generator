@@ -1,7 +1,7 @@
 /** @format */
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { EnterTheChainlinkMultiverse__factory } from "../../generated/types";
+import { EnterTheChainlinkNFTMultiverse__factory } from "../../generated/types";
 import { task } from "hardhat/config";
 
 /**
@@ -13,8 +13,8 @@ const deployMultiverse = async (hre: HardhatRuntimeEnvironment) => {
   const initialOwner = deployer.address;
   console.log("initialOwner : ", initialOwner);
 
-  // Deploy EnterTheChainlinkMultiverse NFT contract
-  const multiVerseNftFactory = new EnterTheChainlinkMultiverse__factory(
+  // Deploy EnterTheChainlinkNFTMultiverse NFT contract
+  const multiVerseNftFactory = new EnterTheChainlinkNFTMultiverse__factory(
     deployer
   );
   const multiVerseNft = await multiVerseNftFactory.deploy();
