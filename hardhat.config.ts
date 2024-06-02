@@ -31,10 +31,6 @@ const config: HardhatUserConfig = {
     target: "ethers-v6",
   },
   networks: {
-    sepolia: {
-      url: String(process.env.INFURA_RPC_URL),
-      accounts: [String(process.env.PRIVATE_KEY)],
-    },
     arbSepolia: {
       url: String(process.env.INFURA_ARB_SEP_RPC_URL),
       accounts: [String(process.env.PRIVATE_KEY)],
@@ -42,7 +38,6 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      sepolia: String(process.env.ETHERSCAN_SEP_API_KEY),
       arbSepolia: String(process.env.ETHERSCAN_ARB_SEP_API_KEY),
     },
     customChains: [
